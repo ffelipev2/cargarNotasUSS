@@ -40,19 +40,19 @@
         >
           <section class="status-banner {{ 'is-ready' if state.ready else 'is-pending' }}">
             <div>
-              <strong>
+              <strong id="process-status">
                 {% if state.ready %}
                   Archivo final generado. Si eliges nuevos archivos, puedes volver a procesar.
                 {% elif state.has_uploads %}
-                  Ya hay archivos cargados. Puedes reprocesarlos o reemplazar uno de los dos.
+                  Selecciona la evaluación de destino y la nota de origen, luego genera el archivo.
                 {% else %}
-                  Selecciona ambos archivos y luego procesa para generar el nuevo archivo.
+                  Selecciona ambos archivos y carga sus columnas para elegir la evaluación.
                 {% endif %}
               </strong>
             </div>
             <div class="banner-actions">
               <button class="download-button process-button {{ '' if state.has_uploads else 'is-disabled' }}" id="process-button" type="submit" {{ '' if state.has_uploads else 'disabled' }}>
-                Procesar y generar archivo
+                {{ 'Procesar y generar archivo' if state.has_uploads else 'Cargar columnas' }}
               </button>
               {% if state.ready %}
                 <a class="download-button secondary-download" href="{{ url_for('download_result') }}">Descargar resultado</a>
@@ -69,7 +69,7 @@
             <article class="upload-card">
               <span class="step-badge">1</span>
               <h2>Sistema Notas Docente</h2>
-              <p>Genera el listado limpio con N, Rut y Nombre.</p>
+              <p>Conserva el listado y elige qué evaluación completar.</p>
               <label class="file-label" for="docente-file" data-default-label="Seleccionar archivo de docente">Seleccionar archivo de docente</label>
               <input class="upload-input" id="docente-file" name="docente_file" type="file" accept=".xls,.xlsx,.csv" data-has-existing="{{ 'true' if state.docente_name else 'false' }}" {{ 'required' if not state.docente_name else '' }}>
               <span class="file-hint">Formatos admitidos: .xls, .xlsx, .csv</span>
@@ -100,11 +100,41 @@
               {% endif %}
             </article>
           </section>
+          {% if state.has_uploads %}
+            <section class="data-panel" id="grade-selection">
+              <h2>3. Elegir evaluación</h2>
+              {% if state.column_error %}
+                <p class="message error">{{ state.column_error }}</p>
+              {% else %}
+                <div class="grade-grid">
+                  <div>
+                    <label for="target-column">Evaluación de destino en MiPortal</label>
+                    <select id="target-column" name="target_column" required>
+                      <option value="">Selecciona una evaluación</option>
+                      {% for option in state.target_options %}
+                        <option value="{{ option.value }}" {{ 'selected' if state.grade_selection.get('target') == option.value else '' }}>{{ option.label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div>
+                    <label for="source-column">Nota de origen en Blackboard</label>
+                    <select id="source-column" name="source_column" required>
+                      <option value="">Selecciona una columna de nota</option>
+                      {% for option in state.source_options %}
+                        <option value="{{ option.value }}" {{ 'selected' if state.grade_selection.get('source') == option.value else '' }}>{{ option.label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <p>Se reemplazan los valores de la evaluación seleccionada. Las demás columnas conservan sus datos. Los estudiantes sin coincidencia reciben 10 por defecto.</p>
+              {% endif %}
+            </section>
+          {% endif %}
         </form>
 
         <section class="file-summary-grid">
           <article class="file-summary">
-            <p class="summary-title">Listado limpio</p>
+            <p class="summary-title">Listado docente</p>
             <strong>{{ state.docente_name or 'Aun no hay archivo cargado' }}</strong>
           </article>
           <article class="file-summary">
@@ -118,6 +148,7 @@
         </section>
 
         {% if state.ready %}
+        <div id="generated-result">
           <section class="stats-grid">
             <article class="stat-card">
               <p class="summary-title">Filas totales</p>
@@ -137,7 +168,8 @@
             <header class="panel-header">
               <div>
                 <p class="summary-title">Resultado</p>
-                <h3>Tabla generada</h3>
+                <h3>{{ state.result_grade_column }}</h3>
+                <p class="result-source">Origen: {{ state.result_source_column or 'Selección automática anterior' }}</p>
               </div>
               <div class="panel-actions">
                 <button class="download-button copy-button" id="copy-notes-button" type="button">
@@ -152,7 +184,7 @@
                 <thead>
                   <tr>
                     {% for column in state.result_columns %}
-                      <th>{{ column }}</th>
+                      <th class="{{ 'selected-grade' if column == state.result_grade_column else '' }}">{{ column }}</th>
                     {% endfor %}
                   </tr>
                 </thead>
@@ -160,7 +192,7 @@
                   {% for row in state.result_rows %}
                     <tr class="{{ 'is-unmatched' if row.is_unmatched else 'is-summary' if row.is_summary else '' }}">
                       {% for column in state.result_columns %}
-                        <td class="{{ 'note-cell' if column == 'nota' else '' }}">{{ row[column] }}</td>
+                        <td class="{{ 'note-cell selected-grade' if column == state.result_grade_column else '' }}">{{ row[column] }}</td>
                       {% endfor %}
                     </tr>
                   {% endfor %}
@@ -206,6 +238,7 @@
               <p class="empty-copy">No hubo estudiantes sin coincidencia en este procesamiento.</p>
             {% endif %}
           </section>
+        </div>
         {% endif %}
       </section>
     </main>

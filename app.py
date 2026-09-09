@@ -48,7 +48,11 @@ BLACKBOARD_NAME_HINTS = (
 BLACKBOARD_ID_HINTS = ("id de estudiante", "student id", "id estudiante", "rut")
 FIRST_NAME_HINTS = ("first name", "given name", "nombre", "nombres")
 LAST_NAME_HINTS = ("last name", "family name", "surname", "apellido", "apellidos")
-GRADE_HINTS = ("nota", "calificacion", "grade", "score", "puntaje", "resultado", "promedio")
+BLACKBOARD_METADATA_HEADERS = {
+    "nombre de usuario", "username", "user name", "correo", "email", "email address",
+    "ultimo acceso", "last access", "last course access", "disponibilidad", "availability",
+    "available", "disponible", "student availability",
+}
 SUMMARY_ROW_HINTS = {"promedio", "desviacion", "desviacionestandar", "average", "median", "minimo", "maximo"}
 IGNORE_NAME_TOKENS = {
     "de",
@@ -100,6 +104,8 @@ class ProcessedResult:
     matched_count: int
     unmatched_count: int
     skipped_count: int
+    grade_column: str
+    source_column: str
 
 
 def ensure_runtime_dirs() -> None:
@@ -143,6 +149,7 @@ def serialize_value(value: object) -> str:
 
 
 def remove_slot_file(slot_name: str) -> None:
+    session.pop("grade_selection", None)
     file_path = get_slot_path(slot_name)
     session.pop(UPLOAD_SLOTS[slot_name]["session_key"], None)
     if file_path is not None and file_path.exists():
@@ -166,6 +173,8 @@ def build_empty_result_view() -> dict[str, object]:
         "result_columns": [],
         "result_rows": [],
         "unmatched_rows": [],
+        "result_grade_column": "nota",
+        "result_source_column": "",
         "result_summary": {
             "total_rows": 0,
             "student_rows": 0,
@@ -200,6 +209,8 @@ def build_result_metadata(processed_result: ProcessedResult) -> dict[str, object
         "columns": processed_result.columns,
         "rows": processed_result.table_rows,
         "unmatched_rows": processed_result.unmatched_rows,
+        "grade_column": processed_result.grade_column,
+        "source_column": processed_result.source_column,
         "summary": {
             "total_rows": len(processed_result.table_rows),
             "student_rows": processed_result.matched_count + processed_result.unmatched_count,
@@ -220,7 +231,9 @@ def get_result_view(result_name: str | None) -> dict[str, object]:
         blackboard_path = get_slot_path("blackboard")
         if docente_path is not None and blackboard_path is not None:
             try:
-                processed_result = build_result_dataframe(read_table(docente_path), read_table(blackboard_path))
+                docente_df, blackboard_df = read_table(docente_path), read_table(blackboard_path)
+                source, target = resolve_grade_selection(docente_df, blackboard_df, session.get("grade_selection", {}))
+                processed_result = build_result_dataframe(docente_df, blackboard_df, source, target)
             except ProcessingError:
                 return build_empty_result_view()
 
@@ -234,6 +247,8 @@ def get_result_view(result_name: str | None) -> dict[str, object]:
         "result_columns": metadata.get("columns", []),
         "result_rows": metadata.get("rows", []),
         "unmatched_rows": metadata.get("unmatched_rows", []),
+        "result_grade_column": metadata.get("grade_column", "nota"),
+        "result_source_column": metadata.get("source_column", ""),
         "result_summary": {
             "total_rows": summary.get("total_rows", 0),
             "student_rows": summary.get("student_rows", 0),
@@ -244,7 +259,7 @@ def get_result_view(result_name: str | None) -> dict[str, object]:
     }
 
 
-def get_upload_state() -> dict[str, str | bool | None]:
+def get_upload_state() -> dict[str, object]:
     docente_name = session.get(UPLOAD_SLOTS["docente"]["session_key"])
     blackboard_name = session.get(UPLOAD_SLOTS["blackboard"]["session_key"])
     result_name = session.get("result_file")
@@ -260,6 +275,14 @@ def get_upload_state() -> dict[str, str | bool | None]:
         "ready": has_result,
     }
     state.update(get_result_view(state["result_name"]))
+    state.update({"source_options": [], "target_options": [], "column_error": ""})
+    state["grade_selection"] = session.get("grade_selection", {})
+    if has_docente and has_blackboard:
+        try:
+            state["target_options"] = get_target_options(read_table(get_slot_path("docente")))
+            state["source_options"] = get_source_options(read_table(get_slot_path("blackboard")))
+        except ProcessingError as exc:
+            state["column_error"] = str(exc)
     return state
 
 
@@ -345,8 +368,10 @@ def is_probably_text_table(file_path: Path) -> bool:
 
 def read_delimited_table(file_path: Path, separators: tuple[str | None, ...]) -> pd.DataFrame:
     last_error: Exception | None = None
+    header = file_path.read_bytes()[:4096]
+    encodings = TEXT_TABLE_ENCODINGS if header.startswith((b"\xff\xfe", b"\xfe\xff")) or b"\x00" in header else ("utf-8-sig", "utf-8", "latin-1")
 
-    for encoding in TEXT_TABLE_ENCODINGS:
+    for encoding in encodings:
         for separator in separators:
             try:
                 read_kwargs = {
@@ -427,30 +452,37 @@ def detect_docente_id_column(columns: list[object]) -> object | None:
     return find_column_by_hints(first_three, DOCENTE_ID_HINTS)
 
 
-def pick_grade_column(dataframe: pd.DataFrame, excluded_columns: set[object]) -> object:
-    ranked_columns: list[tuple[int, int, int, object]] = []
+def get_target_options(dataframe: pd.DataFrame) -> list[dict[str, str]]:
+    if dataframe.empty or len(dataframe.columns) < 3:
+        raise ProcessingError("El listado docente debe tener estudiantes y al menos 3 columnas: N, Rut y Nombre.")
+    return [
+        {"value": str(index), "label": str(column)}
+        for index, column in enumerate(dataframe.columns) if index >= 3
+    ] or [{"value": "-1", "label": "nota (nueva columna)"}]
 
-    for index, column in enumerate(dataframe.columns):
-        if column in excluded_columns:
-            continue
 
-        header = normalize_header(column)
-        header_score = 0
-        if any(hint in header for hint in GRADE_HINTS):
-            header_score = 10
-        elif any(token in header for token in ("rut", "id", "username", "access", "availability", "correo", "email")):
-            header_score = -5
+def get_source_options(dataframe: pd.DataFrame) -> list[dict[str, str]]:
+    _, excluded = build_blackboard_name_series(dataframe)
+    excluded.add(find_column_by_hints(list(dataframe.columns), BLACKBOARD_ID_HINTS))
+    options = [
+        {"value": str(index), "label": str(column)}
+        for index, column in enumerate(dataframe.columns)
+        if column not in excluded and normalize_header(column) not in BLACKBOARD_METADATA_HEADERS
+    ]
+    if not options:
+        raise ProcessingError("El archivo de Blackboard no contiene columnas de evaluaciones.")
+    return options
 
-        numeric_matches = sum(1 for value in dataframe[column] if parse_grade(value) is not None)
-        ranked_columns.append((header_score, numeric_matches, index, column))
 
-    ranked_columns.sort(key=lambda item: (item[0], item[1], item[2]))
-    best_score, best_numeric_matches, _, best_column = ranked_columns[-1]
-
-    if best_numeric_matches == 0 and best_score <= 0:
-        raise ProcessingError("No pude detectar la columna de nota en el archivo de Blackboard.")
-
-    return best_column
+def resolve_grade_selection(
+    docente_df: pd.DataFrame, blackboard_df: pd.DataFrame, selection: dict[str, str]
+) -> tuple[object, object]:
+    for key, options in (("source", get_source_options(blackboard_df)), ("target", get_target_options(docente_df))):
+        if selection.get(key) not in {option["value"] for option in options}:
+            raise ProcessingError("Selecciona la evaluación de MiPortal y la columna de nota de Blackboard.")
+    source = blackboard_df.columns[int(selection["source"])]
+    target = "nota" if selection["target"] == "-1" else docente_df.columns[int(selection["target"])]
+    return source, target
 
 
 def build_blackboard_name_series(dataframe: pd.DataFrame) -> tuple[pd.Series, set[object]]:
@@ -476,14 +508,13 @@ def build_blackboard_name_series(dataframe: pd.DataFrame) -> tuple[pd.Series, se
     raise ProcessingError("No pude detectar la columna de nombre en el archivo de Blackboard.")
 
 
-def build_blackboard_records(dataframe: pd.DataFrame) -> BlackboardIndexes:
-    name_series, name_columns = build_blackboard_name_series(dataframe)
+def build_blackboard_records(dataframe: pd.DataFrame, grade_column: object) -> BlackboardIndexes:
+    name_series, _ = build_blackboard_name_series(dataframe)
     id_column = find_column_by_hints(list(dataframe.columns), BLACKBOARD_ID_HINTS)
-    excluded_columns = set(name_columns)
-    if id_column is not None:
-        excluded_columns.add(id_column)
 
-    grade_column = pick_grade_column(dataframe, excluded_columns=excluded_columns)
+    allowed_columns = {dataframe.columns[int(option["value"])] for option in get_source_options(dataframe)}
+    if grade_column not in allowed_columns:
+        raise ProcessingError("Selecciona una columna de evaluación válida de Blackboard.")
     grade_series = dataframe[grade_column]
     id_series = dataframe[id_column] if id_column is not None else pd.Series([None] * len(dataframe))
 
@@ -576,19 +607,27 @@ def build_unmatched_search_text(raw_id_value: object, raw_name_value: object) ->
     return " / ".join(parts) if parts else "Sin claves de busqueda"
 
 
-def build_result_dataframe(docente_df: pd.DataFrame, blackboard_df: pd.DataFrame) -> ProcessedResult:
+def build_result_dataframe(
+    docente_df: pd.DataFrame, blackboard_df: pd.DataFrame, source_column: object, target_column: object
+) -> ProcessedResult:
     if docente_df.empty:
         raise ProcessingError("El archivo de Sistema Notas Docente no tiene filas.")
 
     if len(docente_df.columns) < 3:
         raise ProcessingError("El archivo de Sistema Notas Docente debe tener al menos 3 columnas.")
 
-    blackboard_indexes = build_blackboard_records(blackboard_df)
-    selected_columns = list(docente_df.columns[:3])
+    target_columns = set(docente_df.columns[3:]) if len(docente_df.columns) > 3 else {"nota"}
+    if target_column not in target_columns:
+        raise ProcessingError("Selecciona una columna de evaluación válida del listado docente.")
+    blackboard_indexes = build_blackboard_records(blackboard_df, source_column)
+    selected_columns = list(docente_df.columns)
     output_df = docente_df.loc[:, selected_columns].copy()
     docente_name_column = detect_docente_name_column(selected_columns)
     docente_id_column = detect_docente_id_column(selected_columns)
-    result_columns = [str(column) for column in selected_columns] + ["nota"]
+    grade_key = str(target_column)
+    result_columns = [str(column) for column in selected_columns]
+    if grade_key not in result_columns:
+        result_columns.append(grade_key)
 
     notes: list[int | str] = []
     table_rows: list[dict[str, object]] = []
@@ -606,7 +645,7 @@ def build_result_dataframe(docente_df: pd.DataFrame, blackboard_df: pd.DataFrame
         if is_non_student_row(id_key, digits_key, simplified_key):
             notes.append("")
             skipped_count += 1
-            table_rows.append({**base_row, "nota": "", "is_unmatched": False, "is_summary": True})
+            table_rows.append({**base_row, grade_key: "", "is_unmatched": False, "is_summary": True})
             continue
 
         matched_record = None
@@ -630,12 +669,12 @@ def build_result_dataframe(docente_df: pd.DataFrame, blackboard_df: pd.DataFrame
             note_value: int | str = matched_record.grade
             matched_count += 1
             table_rows.append(
-                {**base_row, "nota": serialize_value(note_value), "is_unmatched": False, "is_summary": False}
+                {**base_row, grade_key: serialize_value(note_value), "is_unmatched": False, "is_summary": False}
             )
         else:
             note_value = 10
             unmatched_count += 1
-            table_rows.append({**base_row, "nota": "10", "is_unmatched": True, "is_summary": False})
+            table_rows.append({**base_row, grade_key: "10", "is_unmatched": True, "is_summary": False})
             unmatched_rows.append(
                 {
                     **base_row,
@@ -649,7 +688,7 @@ def build_result_dataframe(docente_df: pd.DataFrame, blackboard_df: pd.DataFrame
 
         notes.append(note_value)
 
-    output_df["nota"] = notes
+    output_df[target_column] = notes
     return ProcessedResult(
         dataframe=output_df,
         columns=result_columns,
@@ -658,13 +697,16 @@ def build_result_dataframe(docente_df: pd.DataFrame, blackboard_df: pd.DataFrame
         matched_count=matched_count,
         unmatched_count=unmatched_count,
         skipped_count=skipped_count,
+        grade_column=grade_key,
+        source_column=str(source_column),
     )
 
 
-def generate_result_file(docente_path: Path, blackboard_path: Path) -> str:
+def generate_result_file(docente_path: Path, blackboard_path: Path, selection: dict[str, str]) -> str:
     docente_df = read_table(docente_path)
     blackboard_df = read_table(blackboard_path)
-    processed_result = build_result_dataframe(docente_df, blackboard_df)
+    source, target = resolve_grade_selection(docente_df, blackboard_df, selection)
+    processed_result = build_result_dataframe(docente_df, blackboard_df, source, target)
 
     ensure_runtime_dirs()
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -682,7 +724,7 @@ def refresh_result_if_possible() -> bool:
         return False
 
     remove_result_file()
-    result_name = generate_result_file(docente_path, blackboard_path)
+    result_name = generate_result_file(docente_path, blackboard_path, session.get("grade_selection", {}))
     session["result_file"] = result_name
     return True
 
@@ -767,7 +809,17 @@ def process_files():
 
     try:
         remove_result_file()
-        result_name = generate_result_file(docente_path, blackboard_path)
+        if docente_has_new_file or blackboard_has_new_file:
+            session.pop("grade_selection", None)
+            get_target_options(read_table(docente_path))
+            get_source_options(read_table(blackboard_path))
+            flash("Archivos cargados. Selecciona la evaluación de MiPortal y la nota de Blackboard.", "success")
+            return redirect(url_for("index"))
+
+        selection = {"source": request.form.get("source_column", ""), "target": request.form.get("target_column", "")}
+        session.pop("grade_selection", None)
+        result_name = generate_result_file(docente_path, blackboard_path, selection)
+        session["grade_selection"] = selection
         session["result_file"] = result_name
         flash("Archivo final generado correctamente.", "success")
     except ProcessingError as exc:

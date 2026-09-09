@@ -2,6 +2,16 @@ const fileInputs = Array.from(document.querySelectorAll(".upload-input"));
 const processButton = document.querySelector("#process-button");
 const copyNotesButton = document.querySelector("#copy-notes-button");
 const copyFeedback = document.querySelector("#copy-feedback");
+const gradeSelects = Array.from(document.querySelectorAll("#grade-selection select"));
+
+function markResultStale() {
+  const result = document.querySelector("#generated-result");
+  const download = document.querySelector(".secondary-download");
+  if (result) result.hidden = true;
+  if (download) download.hidden = true;
+  const status = document.querySelector("#process-status");
+  if (status) status.textContent = "La selección cambió. Carga las columnas si reemplazaste archivos y vuelve a generar el resultado.";
+}
 
 function hasAvailableFile(input) {
   const hasSelectedFile = input.files && input.files.length > 0;
@@ -14,7 +24,11 @@ function updateProcessButton() {
     return;
   }
 
-  const canProcess = fileInputs.every((input) => hasAvailableFile(input));
+  const hasNewFile = fileInputs.some((input) => input.files && input.files.length > 0);
+  gradeSelects.forEach((select) => { select.disabled = hasNewFile; });
+  const hasSelection = gradeSelects.length === 2 && gradeSelects.every((select) => select.value !== "");
+  const canProcess = fileInputs.every((input) => hasAvailableFile(input)) && (hasNewFile || hasSelection);
+  processButton.textContent = hasNewFile || gradeSelects.length === 0 ? "Cargar columnas" : "Procesar y generar archivo";
   processButton.disabled = !canProcess;
   processButton.classList.toggle("is-disabled", !canProcess);
 }
@@ -27,6 +41,14 @@ fileInputs.forEach((input) => {
       label.textContent = input.files && input.files.length > 0 ? input.files[0].name : defaultLabel;
     }
 
+    markResultStale();
+    updateProcessButton();
+  });
+});
+
+gradeSelects.forEach((select) => {
+  select.addEventListener("change", () => {
+    markResultStale();
     updateProcessButton();
   });
 });
