@@ -1,0 +1,530 @@
+{
+  "columns": [
+    "N",
+    "Rut",
+    "Nombre",
+    "nota"
+  ],
+  "rows": [
+    {
+      "N": "1",
+      "Rut": "189727526",
+      "Nombre": "AHUMADA VASQUEZ FERNANDO",
+      "nota": "15",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "2",
+      "Rut": "182546798",
+      "Nombre": "ALCAYAGA/CASTILLO DIEGO MAURICIO",
+      "nota": "69",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "3",
+      "Rut": "136764829",
+      "Nombre": "ALLENDE/ARREDONDO JOSE ALEJANDRO",
+      "nota": "24",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "4",
+      "Rut": "204823324",
+      "Nombre": "ALVAREZ DIAZ JOSE",
+      "nota": "70",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "5",
+      "Rut": "202233600",
+      "Nombre": "AMÉSTICA/FIERRO MARGARITA",
+      "nota": "63",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "6",
+      "Rut": "24441902K",
+      "Nombre": "ANGEL NEIRA/GUTIERREZ",
+      "nota": "53",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "7",
+      "Rut": "165829298",
+      "Nombre": "ARAVENA/ALDANA MIGUEL ANGEL",
+      "nota": "43",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "8",
+      "Rut": "178599534",
+      "Nombre": "ARRIAZA/CARVAJAL CAMILA ANDREA",
+      "nota": "33",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "9",
+      "Rut": "211335793",
+      "Nombre": "AVALLAY/RÍOS IGNACIA VIRGINIA",
+      "nota": "64",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "10",
+      "Rut": "205146393",
+      "Nombre": "BARRA/OLAVE IGNACIA ALEJANDRA",
+      "nota": "63",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "11",
+      "Rut": "197532203",
+      "Nombre": "BARRERA/ RUBEN",
+      "nota": "70",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "12",
+      "Rut": "19370168K",
+      "Nombre": "CASTILLO/POBLETE JAVIERA ROCIO",
+      "nota": "59",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "13",
+      "Rut": "199491121",
+      "Nombre": "CASTRO/LEDEZMA NICOLAS BENJAMIN",
+      "nota": "38",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "14",
+      "Rut": "199879774",
+      "Nombre": "CATALAN/ZUÑIGA DANIELA ANTONIA",
+      "nota": "23",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "15",
+      "Rut": "135208817",
+      "Nombre": "CEVERIO/HIDALGO MAURICIO ALEJANDRO",
+      "nota": "38",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "16",
+      "Rut": "159086704",
+      "Nombre": "CUEVAS AGUIRRE RUTH",
+      "nota": "63",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "17",
+      "Rut": "16750504K",
+      "Nombre": "DE/LA/JARA/CONTRERAS DANIEL ANDRES",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "18",
+      "Rut": "178904892",
+      "Nombre": "FLORES/AGUILA MAURICIO SEBASTIAN",
+      "nota": "66",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "19",
+      "Rut": "181836555",
+      "Nombre": "FLORES/TELLO CARLOS DAVID",
+      "nota": "55",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "20",
+      "Rut": "204344914",
+      "Nombre": "FREDERICH/URRIOLA DAVID ELIAS",
+      "nota": "66",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "21",
+      "Rut": "200392213",
+      "Nombre": "GAJARDO/PINO LUNA MEY",
+      "nota": "51",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "22",
+      "Rut": "194669097",
+      "Nombre": "GALARCE/ ANDRES",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "23",
+      "Rut": "197114460",
+      "Nombre": "GODOY/CORTES ROBERTO ANDRES",
+      "nota": "65",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "24",
+      "Rut": "193747744",
+      "Nombre": "GONZALEZ AGUILAR ELIAS",
+      "nota": "63",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "25",
+      "Rut": "174278911",
+      "Nombre": "GONZALEZ ROJAS ADOLFO",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "26",
+      "Rut": "174245991",
+      "Nombre": "GONZALEZ/LORCA PEDRO LUIS",
+      "nota": "44",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "27",
+      "Rut": "202106390",
+      "Nombre": "GONZALEZ/SOTO/SOTO CRISTIAN VICENTE",
+      "nota": "40",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "28",
+      "Rut": "200215656",
+      "Nombre": "HAAS/CASANUEVA MARTÍN",
+      "nota": "55",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "29",
+      "Rut": "180848703",
+      "Nombre": "JARA GALLARDO CRISTOBAL",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "30",
+      "Rut": "197757035",
+      "Nombre": "LAGOS LIBANO CARLOS",
+      "nota": "63",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "31",
+      "Rut": "159096807",
+      "Nombre": "MALDONADO ROJAS FRANK",
+      "nota": "24",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "32",
+      "Rut": "178503510",
+      "Nombre": "MERA/DIAZ MARCELO ANDRES",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "33",
+      "Rut": "145934281",
+      "Nombre": "MORALES PAZ CRISTOBAL",
+      "nota": "64",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "34",
+      "Rut": "178076469",
+      "Nombre": "NICOLICH OYARCE WILLIAMS",
+      "nota": "33",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "35",
+      "Rut": "20477434K",
+      "Nombre": "OLIVARES/ ARIEL",
+      "nota": "66",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "36",
+      "Rut": "185899802",
+      "Nombre": "OLIVERA/HENRIQUEZ NICOLAS IVAN",
+      "nota": "48",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "37",
+      "Rut": "15693478K",
+      "Nombre": "PERALTA CORTES JORGE",
+      "nota": "48",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "38",
+      "Rut": "176240768",
+      "Nombre": "PINO TORRES CRISTIAN",
+      "nota": "30",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "39",
+      "Rut": "138686191",
+      "Nombre": "PRUSANIDIS ZAMORA MOISES",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "40",
+      "Rut": "19432166K",
+      "Nombre": "RAMIREZ MIÑO BRUNO",
+      "nota": "59",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "41",
+      "Rut": "184649039",
+      "Nombre": "RAMIREZ/PARDO MARIANO ENRIQUE",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "42",
+      "Rut": "154592636",
+      "Nombre": "RAPIMAN/BUSTOS PAOLA ANDREA",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "43",
+      "Rut": "190932230",
+      "Nombre": "RIVERA/VALLADARES JAVIER IGNACIO",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "44",
+      "Rut": "205626050",
+      "Nombre": "ROBERSON/MENA LORENZO JOHN",
+      "nota": "69",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "45",
+      "Rut": "130956157",
+      "Nombre": "RODRIGO LAGOS/GONZALEZ",
+      "nota": "64",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "46",
+      "Rut": "204620547",
+      "Nombre": "ROMERO PICHINTRU DANILO",
+      "nota": "23",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "47",
+      "Rut": "173968337",
+      "Nombre": "RUIZ  FELIPE",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "48",
+      "Rut": "167392164",
+      "Nombre": "SAAVEDRA/LEIVA WALTER RODOLFO",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "49",
+      "Rut": "15563846K",
+      "Nombre": "SALAZAR/FERNANDEZ GABRIEL ELIAS",
+      "nota": "44",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "50",
+      "Rut": "157270168",
+      "Nombre": "SALDAÑA/ FELIPE",
+      "nota": "55",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "51",
+      "Rut": "20884282K",
+      "Nombre": "SALGADO/PONCE GONZALO IGNACIO",
+      "nota": "66",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "52",
+      "Rut": "168247281",
+      "Nombre": "SANDOVAL/VIDAL CRISTOBAL ANDRES",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "53",
+      "Rut": "182798452",
+      "Nombre": "SANTANDER/NOVOA MATÍAS ANDRÉS",
+      "nota": "59",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "54",
+      "Rut": "140095044",
+      "Nombre": "SASO PIÑEDA MARLENE",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "55",
+      "Rut": "199073133",
+      "Nombre": "SEPULVEDA VALENCIA OSCAR",
+      "nota": "28",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "56",
+      "Rut": "109731951",
+      "Nombre": "SOTO VARGAS RODRIGO",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "57",
+      "Rut": "188318290",
+      "Nombre": "TORRES COLLAO RODRIGO",
+      "nota": "40",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "58",
+      "Rut": "143776875",
+      "Nombre": "TUDELA/HIGUERA MAURICIO ALEJANDRO",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "59",
+      "Rut": "118179234",
+      "Nombre": "ugarte/inostroza rodrigo ernesto",
+      "nota": "38",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "60",
+      "Rut": "182290203",
+      "Nombre": "VARGAS/LEON OMAR ANDRES",
+      "nota": "66",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "61",
+      "Rut": "179408724",
+      "Nombre": "VERGARA/FUENTES CARLOS RICARDO",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "62",
+      "Rut": "176155582",
+      "Nombre": "ZAPATA/ELGUETA JUAN PABLO",
+      "nota": "10",
+      "is_unmatched": false,
+      "is_summary": false
+    },
+    {
+      "N": "Promedio",
+      "Rut": "Promedio",
+      "Nombre": "",
+      "nota": "",
+      "is_unmatched": false,
+      "is_summary": true
+    },
+    {
+      "N": "Desviacion",
+      "Rut": "Desviacion",
+      "Nombre": "",
+      "nota": "",
+      "is_unmatched": false,
+      "is_summary": true
+    }
+  ],
+  "unmatched_rows": [],
+  "summary": {
+    "total_rows": 64,
+    "student_rows": 62,
+    "matched_count": 62,
+    "unmatched_count": 0,
+    "skipped_count": 2
+  }
+}

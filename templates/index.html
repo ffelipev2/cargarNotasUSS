@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Preparar notas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="app-card">
+        <header class="hero">
+          <div>
+            <p class="eyebrow">BLACKBOARD NOTAS</p>
+            <h1>Preparar notas</h1>
+          </div>
+          <span class="format-pill">Excel</span>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <section class="messages">
+              {% for category, message in messages %}
+                <article class="message {{ category }}">{{ message }}</article>
+              {% endfor %}
+            </section>
+          {% endif %}
+        {% endwith %}
+
+        <form
+          id="process-form"
+          action="{{ url_for('process_files') }}"
+          method="post"
+          enctype="multipart/form-data"
+          data-has-docente="{{ 'true' if state.docente_name else 'false' }}"
+          data-has-blackboard="{{ 'true' if state.blackboard_name else 'false' }}"
+        >
+          <section class="status-banner {{ 'is-ready' if state.ready else 'is-pending' }}">
+            <div>
+              <strong>
+                {% if state.ready %}
+                  Archivo final generado. Si eliges nuevos archivos, puedes volver a procesar.
+                {% elif state.has_uploads %}
+                  Ya hay archivos cargados. Puedes reprocesarlos o reemplazar uno de los dos.
+                {% else %}
+                  Selecciona ambos archivos y luego procesa para generar el nuevo archivo.
+                {% endif %}
+              </strong>
+            </div>
+            <div class="banner-actions">
+              <button class="download-button process-button {{ '' if state.has_uploads else 'is-disabled' }}" id="process-button" type="submit" {{ '' if state.has_uploads else 'disabled' }}>
+                Procesar y generar archivo
+              </button>
+              {% if state.ready %}
+                <a class="download-button secondary-download" href="{{ url_for('download_result') }}">Descargar resultado</a>
+              {% endif %}
+              {% if state.has_any_files %}
+                <button class="download-button danger-button" type="submit" formaction="{{ url_for('clear_all') }}" formmethod="post" formnovalidate>
+                  Borrar todo
+                </button>
+              {% endif %}
+            </div>
+          </section>
+
+          <section class="upload-grid">
+            <article class="upload-card">
+              <span class="step-badge">1</span>
+              <h2>Sistema Notas Docente</h2>
+              <p>Genera el listado limpio con N, Rut y Nombre.</p>
+              <label class="file-label" for="docente-file" data-default-label="Seleccionar archivo de docente">Seleccionar archivo de docente</label>
+              <input class="upload-input" id="docente-file" name="docente_file" type="file" accept=".xls,.xlsx,.csv" data-has-existing="{{ 'true' if state.docente_name else 'false' }}" {{ 'required' if not state.docente_name else '' }}>
+              <span class="file-hint">Formatos admitidos: .xls, .xlsx, .csv</span>
+              {% if state.docente_name %}
+                <div class="loaded-file-bar">
+                  <span class="loaded-file-name">Actual: {{ state.docente_name }}</span>
+                  <button class="text-button danger-text" type="submit" formaction="{{ url_for('clear_slot', slot_name='docente') }}" formmethod="post" formnovalidate>
+                    Borrar archivo
+                  </button>
+                </div>
+              {% endif %}
+            </article>
+
+            <article class="upload-card">
+              <span class="step-badge">2</span>
+              <h2>Archivo GC / Notas Blackboard</h2>
+              <p>Normaliza las notas y las traspasa al listado.</p>
+              <label class="file-label" for="blackboard-file" data-default-label="Seleccionar archivo de Blackboard">Seleccionar archivo de Blackboard</label>
+              <input class="upload-input" id="blackboard-file" name="blackboard_file" type="file" accept=".xls,.xlsx,.csv" data-has-existing="{{ 'true' if state.blackboard_name else 'false' }}" {{ 'required' if not state.blackboard_name else '' }}>
+              <span class="file-hint">Formatos admitidos: .xls, .xlsx, .csv</span>
+              {% if state.blackboard_name %}
+                <div class="loaded-file-bar">
+                  <span class="loaded-file-name">Actual: {{ state.blackboard_name }}</span>
+                  <button class="text-button danger-text" type="submit" formaction="{{ url_for('clear_slot', slot_name='blackboard') }}" formmethod="post" formnovalidate>
+                    Borrar archivo
+                  </button>
+                </div>
+              {% endif %}
+            </article>
+          </section>
+        </form>
+
+        <section class="file-summary-grid">
+          <article class="file-summary">
+            <p class="summary-title">Listado limpio</p>
+            <strong>{{ state.docente_name or 'Aun no hay archivo cargado' }}</strong>
+          </article>
+          <article class="file-summary">
+            <p class="summary-title">Archivo Blackboard</p>
+            <strong>{{ state.blackboard_name or 'Aun no hay archivo cargado' }}</strong>
+          </article>
+          <article class="file-summary">
+            <p class="summary-title">Archivo final</p>
+            <strong>{{ state.result_name or 'Se generara cuando ambos archivos sean validos' }}</strong>
+          </article>
+        </section>
+
+        {% if state.ready %}
+          <section class="stats-grid">
+            <article class="stat-card">
+              <p class="summary-title">Filas totales</p>
+              <strong>{{ state.result_summary.total_rows }}</strong>
+            </article>
+            <article class="stat-card">
+              <p class="summary-title">Estudiantes con match</p>
+              <strong>{{ state.result_summary.matched_count }}</strong>
+            </article>
+            <article class="stat-card">
+              <p class="summary-title">Sin coincidencia</p>
+              <strong>{{ state.result_summary.unmatched_count }}</strong>
+            </article>
+          </section>
+
+          <section class="data-panel">
+            <header class="panel-header">
+              <div>
+                <p class="summary-title">Resultado</p>
+                <h3>Tabla generada</h3>
+              </div>
+              <div class="panel-actions">
+                <button class="download-button copy-button" id="copy-notes-button" type="button">
+                  Copiar notas
+                </button>
+                <span class="copy-feedback" id="copy-feedback" aria-live="polite"></span>
+                <span class="panel-tag">Vista en pagina</span>
+              </div>
+            </header>
+            <div class="table-wrap">
+              <table class="result-table" id="result-table">
+                <thead>
+                  <tr>
+                    {% for column in state.result_columns %}
+                      <th>{{ column }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in state.result_rows %}
+                    <tr class="{{ 'is-unmatched' if row.is_unmatched else 'is-summary' if row.is_summary else '' }}">
+                      {% for column in state.result_columns %}
+                        <td class="{{ 'note-cell' if column == 'nota' else '' }}">{{ row[column] }}</td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="data-panel unmatched-panel">
+            <header class="panel-header">
+              <div>
+                <p class="summary-title">Sin coincidencia</p>
+                <h3>Estudiantes que quedaron con nota 10 por defecto</h3>
+              </div>
+              <span class="panel-tag">{{ state.result_summary.unmatched_count }} casos</span>
+            </header>
+            {% if state.unmatched_rows %}
+              <div class="table-wrap">
+                <table class="result-table compact-table">
+                  <thead>
+                    <tr>
+                      <th>N</th>
+                      <th>Rut</th>
+                      <th>Nombre</th>
+                      <th>Detalle</th>
+                      <th>Buscado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in state.unmatched_rows %}
+                      <tr>
+                        <td>{{ row['N'] }}</td>
+                        <td>{{ row['Rut'] }}</td>
+                        <td>{{ row['Nombre'] }}</td>
+                        <td>{{ row['detalle'] }}</td>
+                        <td>{{ row['buscado'] }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="empty-copy">No hubo estudiantes sin coincidencia en este procesamiento.</p>
+            {% endif %}
+          </section>
+        {% endif %}
+      </section>
+    </main>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
