@@ -3,14 +3,19 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
+import webbrowser
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
+from threading import Thread
+from time import monotonic, sleep
+from urllib.request import urlopen
 
 import pandas as pd
 from flask import Flask, flash, redirect, render_template, request, send_file, session, url_for
+from werkzeug.serving import is_running_from_reloader
 from werkzeug.utils import secure_filename
 
 
@@ -858,6 +863,27 @@ def download_result():
     )
 
 
+def open_browser_when_ready(url: str, timeout: float = 15.0) -> None:
+    deadline = monotonic() + timeout
+    while monotonic() < deadline:
+        try:
+            with urlopen(url, timeout=1.0) as response:
+                if response.status == 200:
+                    webbrowser.open_new_tab(url)
+                    return
+        except OSError:
+            pass
+        sleep(0.2)
+
+
 if __name__ == "__main__":
     ensure_runtime_dirs()
-    app.run(debug=True)
+    host, port = "127.0.0.1", 5000
+    # Only the reloader's parent opens the browser, once per server launch.
+    if not is_running_from_reloader():
+        Thread(
+            target=open_browser_when_ready,
+            args=(f"http://{host}:{port}/",),
+            daemon=True,
+        ).start()
+    app.run(host=host, port=port, debug=True)

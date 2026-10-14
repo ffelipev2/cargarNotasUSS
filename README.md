@@ -6,6 +6,8 @@ El flujo se realiza con archivos exportados: la aplicación no inicia sesión ni
 
 ## Funcionalidades
 
+- Interfaz oscura y adaptable a móviles, tablets y escritorio, con pasos de preparación y resumen de archivos.
+- Selección de archivos mediante el explorador o arrastrándolos a cada recuadro, con validación de formato y tamaño.
 - Lee archivos `.xls`, `.xlsx` y `.csv`, incluidos archivos de Blackboard con extensión `.xls` que contienen texto separado por tabulaciones.
 - Detecta columnas de identificación y nombres a partir de sus encabezados.
 - Permite elegir la evaluación de destino en MiPortal y la columna de nota de origen en Blackboard.
@@ -41,7 +43,7 @@ python3 -m venv .venv
 .venv/bin/python app.py
 ```
 
-Abre **http://127.0.0.1:5000** en el navegador. Para detener la aplicación, presiona `Ctrl+C` en la terminal.
+Al ejecutar `python app.py`, la aplicación abre automáticamente **http://127.0.0.1:5000** en el navegador predeterminado cuando el servidor está listo. La recarga automática del código no abre pestañas adicionales. Si necesitas abrirla manualmente, usa esa misma dirección. Para detener la aplicación, presiona `Ctrl+C` en la terminal.
 
 ## Preparación de los archivos
 

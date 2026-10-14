@@ -15,11 +15,12 @@ function element(properties = {}) {
 }
 
 async function main() {
-  const inputs = [element({ files: [], dataset: { hasExisting: "true" } }), element({ files: [], dataset: { hasExisting: "true" } })];
+  const inputs = [element({ id: "docente-file", files: [], dataset: { hasExisting: "true" } }), element({ id: "blackboard-file", files: [], dataset: { hasExisting: "true" } })];
   const selects = [element(), element()];
   const button = element();
   const copyButton = element();
   const result = element();
+  const emptyResult = element({ hidden: true });
   const download = element();
   const feedback = element();
   const status = element();
@@ -28,6 +29,7 @@ async function main() {
     "#copy-notes-button": copyButton,
     "#copy-feedback": feedback,
     "#generated-result": result,
+    "#result-empty": emptyResult,
     ".secondary-download": download,
     "#process-status": status,
   };
@@ -54,6 +56,7 @@ async function main() {
   assert.equal(button.disabled, false);
   assert.equal(result.hidden, true, "Changing evaluation hides stale results");
   assert.equal(download.hidden, true, "Changing evaluation hides stale download");
+  assert.equal(emptyResult.hidden, false, "Changing evaluation shows the pending result state");
 
   inputs[0].files = [{ name: "replacement.xlsx" }];
   inputs[0].listeners.change();
