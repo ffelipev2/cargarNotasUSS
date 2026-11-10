@@ -4,6 +4,12 @@ Aplicación web local para hacer calzar el listado de estudiantes de **MiPortal 
 
 El flujo se realiza con archivos exportados: la aplicación no inicia sesión ni carga notas automáticamente en las plataformas.
 
+## Cambios del 10 de noviembre de 2026
+
+- La interfaz usa fondo claro y texto más grande. En pantallas anchas, los archivos y las evaluaciones quedan a la izquierda y el listado a la derecha. En móvil se muestran en una sola columna.
+- La papelera retira de la sesión el archivo seleccionado e invalida el listado asociado. El icono de copia toma las notas en el orden de MiPortal, una por línea.
+- **Ver detalle** está disponible desde el inicio y muestra el resultado después de generar el listado, incluso cuando todos los estudiantes tienen nota. Para cada caso sin coincidencia, muestra los datos disponibles de MiPortal y las claves que se buscaron en Blackboard. La tabla identifica los `10` asignados por defecto.
+
 ## Funcionalidades
 
 - Interfaz clara y adaptable a móviles, tablets y escritorio.
