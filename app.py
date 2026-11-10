@@ -248,8 +248,11 @@ def get_result_view(result_name: str | None) -> dict[str, object]:
             return build_empty_result_view()
 
     summary = metadata.get("summary", {})
+    columns = metadata.get("columns", [])
     return {
-        "result_columns": metadata.get("columns", []),
+        "result_columns": columns,
+        "result_name_column": detect_docente_name_column(columns) if len(columns) >= 3 else None,
+        "result_id_column": detect_docente_id_column(columns),
         "result_rows": metadata.get("rows", []),
         "unmatched_rows": metadata.get("unmatched_rows", []),
         "result_grade_column": metadata.get("grade_column", "nota"),
@@ -764,13 +767,18 @@ def save_uploaded_file(slot_name: str, uploaded_file) -> Path:
 
 @app.post("/clear/<slot_name>")
 def clear_slot(slot_name: str):
+    wants_json = request.accept_mimetypes.best == "application/json"
     if slot_name not in UPLOAD_SLOTS:
+        if wants_json:
+            return "", 404
         flash("Tipo de archivo no reconocido.", "error")
         return redirect(url_for("index"))
 
     remove_result_file()
     remove_slot_file(slot_name)
-    flash(f"Se elimino el archivo de {UPLOAD_SLOTS[slot_name]['label']}.", "success")
+    if wants_json:
+        return "", 204
+    flash(f"Se quitó el archivo de {UPLOAD_SLOTS[slot_name]['label']}.", "success")
     return redirect(url_for("index"))
 
 
@@ -818,7 +826,6 @@ def process_files():
             session.pop("grade_selection", None)
             get_target_options(read_table(docente_path))
             get_source_options(read_table(blackboard_path))
-            flash("Archivos cargados. Selecciona la evaluación de MiPortal y la nota de Blackboard.", "success")
             return redirect(url_for("index"))
 
         selection = {"source": request.form.get("source_column", ""), "target": request.form.get("target_column", "")}
@@ -826,7 +833,7 @@ def process_files():
         result_name = generate_result_file(docente_path, blackboard_path, selection)
         session["grade_selection"] = selection
         session["result_file"] = result_name
-        flash("Archivo final generado correctamente.", "success")
+        return redirect(url_for("index", _anchor="generated-result"))
     except ProcessingError as exc:
         remove_result_file()
         flash(str(exc), "error")

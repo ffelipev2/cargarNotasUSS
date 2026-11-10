@@ -1,20 +1,20 @@
 # Cargar notas USS
 
-Aplicación web local para hacer calzar el listado de estudiantes de **MiPortal USS (Sistema Notas Docente)** con las calificaciones exportadas desde **Blackboard**. Genera un Excel con las notas en el mismo orden del listado de MiPortal y permite copiarlas al portapapeles para facilitar su traspaso.
+Aplicación web local para hacer calzar el listado de estudiantes de **MiPortal USS (Sistema Notas Docente)** con las calificaciones exportadas desde **Blackboard**. Muestra las notas en el orden del listado de MiPortal y permite copiarlas al portapapeles para facilitar su traspaso.
 
 El flujo se realiza con archivos exportados: la aplicación no inicia sesión ni carga notas automáticamente en las plataformas.
 
 ## Funcionalidades
 
-- Interfaz oscura y adaptable a móviles, tablets y escritorio, con pasos de preparación y resumen de archivos.
+- Interfaz clara y adaptable a móviles, tablets y escritorio.
 - Selección de archivos mediante el explorador o arrastrándolos a cada recuadro, con validación de formato y tamaño.
 - Lee archivos `.xls`, `.xlsx` y `.csv`, incluidos archivos de Blackboard con extensión `.xls` que contienen texto separado por tabulaciones.
 - Detecta columnas de identificación y nombres a partir de sus encabezados.
 - Permite elegir la evaluación de destino en MiPortal y la columna de nota de origen en Blackboard.
 - Busca coincidencias por RUT/ID y por nombres, normalizando mayúsculas, tildes, separadores y el orden de las palabras.
 - Conserva todas las columnas y el orden de las filas de MiPortal; reemplaza los valores de la evaluación seleccionada.
-- Muestra el resultado y los estudiantes sin coincidencia en pantalla.
-- Permite descargar el Excel, copiar las notas, reemplazar archivos y borrar los archivos de la sesión.
+- Muestra los nombres y la evaluación elegida en una tabla. Marca en la misma fila a los estudiantes sin coincidencia.
+- Permite copiar las notas y reemplazar los archivos cargados.
 
 ## Requisitos e instalación
 
@@ -65,17 +65,17 @@ En Excel se lee la primera hoja y se utiliza la primera fila como encabezado. El
 
 ## Uso
 
-1. Selecciona el listado de MiPortal en **Sistema Notas Docente**.
-2. Selecciona la exportación de Blackboard en **Archivo GC / Notas Blackboard**.
-3. Pulsa **Cargar columnas**. Este paso muestra las opciones y todavía no genera notas.
-4. En **Evaluación de destino en MiPortal**, elige la columna que quieres completar. En **Nota de origen en Blackboard**, elige la evaluación correspondiente.
-5. Pulsa **Procesar y generar archivo** y revisa la tabla, el número de coincidencias y el detalle de estudiantes sin coincidencia. La evaluación seleccionada queda resaltada y se muestra su columna de origen.
-6. Usa **Descargar resultado** para obtener el `.xlsx`, o **Copiar notas** para copiar solo la evaluación seleccionada, con una nota por línea en el orden del listado. Las celdas de nota vacías se omiten al copiar.
-7. Traspasa las notas a MiPortal después de verificar los resultados.
+1. Selecciona el **Listado de MiPortal** y las **Notas de Blackboard** del mismo curso.
+2. Pulsa **Cargar archivos** para ver las evaluaciones disponibles.
+3. En **Evaluación en MiPortal**, elige la columna que quieres completar. En **Evaluación en Blackboard**, elige la evaluación correspondiente.
+4. Pulsa **Generar listado**. Debajo del botón aparece el aviso de coincidencias. **Ver detalle** muestra el total de estudiantes con nota de Blackboard y los datos de los casos sin coincidencia, incluidas las claves usadas en la búsqueda.
+5. Pulsa el icono **Copiar notas** junto al título del listado para llevar al portapapeles una nota por línea, en el orden de MiPortal. Las filas de resumen y las notas vacías se omiten.
 
 Por ejemplo, para Solemne 2, selecciona `SOLEMNE 2 (35%) 09-SEP-2026` como destino y la columna `U3 | S13 Solemne II [Puntos totales: 100 Escala Chilena]` de Blackboard como origen (puede incluir un emoji y un identificador en el encabezado). Las notas de Solemne 1 y Controles conservan sus valores.
 
-Puedes cambiar las evaluaciones y reprocesar sin volver a cargar los archivos. Cada resultado se genera desde los archivos cargados originalmente. Si reemplazas un archivo, debes cargar sus columnas y volver a elegir origen y destino. Al cambiar una selección, se ocultan el resultado anterior y su descarga hasta volver a procesar. **Borrar archivo** elimina ese archivo y el resultado asociado; **Borrar todo** elimina ambos archivos cargados y el resultado de la sesión.
+Puedes cambiar las evaluaciones y generar otro listado con los mismos archivos. Si reemplazas un archivo, pulsa **Cargar archivos** y vuelve a elegir las evaluaciones. Al cambiar una selección, el listado anterior se oculta hasta que generes uno nuevo.
+
+Pulsa el icono de papelera junto a MiPortal o Blackboard para dejar vacío ese campo. El otro archivo se conserva. Si ya habías generado un listado, quitar un archivo lo invalida.
 
 ## Reglas del cruce
 
@@ -89,7 +89,7 @@ Para cada estudiante de MiPortal, se intenta encontrar un registro de Blackboard
 
 Cada registro de Blackboard se usa una sola vez. Los registros sin nombre utilizable o sin calificación numérica se descartan. Los nombres duplicados o las coincidencias parciales pueden ser ambiguos: el algoritmo no solicita confirmación para resolverlos.
 
-**Un estudiante sin coincidencia recibe `10` por defecto** y aparece en el detalle correspondiente. Ese valor no confirma que exista una nota en Blackboard. Las filas identificadas por el código como resumen o sin datos de estudiante se conservan con la nota vacía.
+**Un estudiante sin coincidencia recibe `10` por defecto** y queda marcado en la tabla. Las filas de resumen o sin datos de estudiante se conservan con la nota vacía en el archivo de resultados.
 
 ## Conversión de notas
 

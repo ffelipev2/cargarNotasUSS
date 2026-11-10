@@ -102,8 +102,18 @@ class GradeSelectionRoutesTests(GradeFixture):
 
         page = self.client.post("/process", data={"source_column": "6", "target_column": "4"}, follow_redirects=True)
         self.assertEqual(page.status_code, 200)
-        self.assertIn(b'class="note-cell selected-grade">64</td>', page.data)
-        self.assertEqual(page.data.count(b'class="note-cell selected-grade"'), 4)
+        self.assertTrue(page.history[-1].location.endswith("#generated-result"))
+        self.assertIn(b'class="note-cell"><span class="grade-value">64</span></td>', page.data)
+        self.assertEqual(page.data.count(b'class="note-cell"'), 3)
+        self.assertIn(b'class="unmatched">Nota por defecto</span>', page.data)
+        self.assertIn(b"1 estudiante sin coincidencia", page.data)
+        detail = page.data.split(b'<ul class="match-details">', 1)[1].split(b"</ul>", 1)[0]
+        self.assertIn(b"<strong>Eva Ruiz</strong>", detail)
+        self.assertIn(b"<dt>RUT/ID</dt><dd>33-3</dd>", detail)
+        self.assertIn("No se encontró coincidencia en Blackboard.".encode("utf-8"), detail)
+        self.assertIn(b"<dt>Buscado</dt><dd>Rut/ID 333 / nombre eva ruiz</dd>", detail)
+        self.assertNotIn(b"Luis Soto", detail)
+        self.assertNotIn(b">Descargar resultado<", page.data)
         self.assertIn(self.source.encode("utf-8"), page.data)
         with self.client.session_transaction() as session:
             result_name = session["result_file"]
@@ -126,12 +136,46 @@ class GradeSelectionRoutesTests(GradeFixture):
         response.close()
 
     def test_missing_selection_does_not_generate_automatic_result(self):
+        empty_page = self.client.get("/")
+        self.assertIn(b"<summary>Ver detalle</summary>", empty_page.data)
+        self.assertIn(b'id="match-feedback" data-ready="false"', empty_page.data)
         self.upload()
         page = self.client.post("/process", follow_redirects=True)
         self.assertIn("Selecciona la evaluación".encode("utf-8"), page.data)
         response = self.client.get("/download-result")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(list(notes.RESULT_DIR.glob("*.xlsx")), [])
+
+    def test_all_matched_feedback_includes_a_legitimate_grade_of_ten(self):
+        self.blackboard.loc[0, "Control 1"] = "1.0"
+        self.upload()
+        page = self.client.post("/process", data={"source_column": "7", "target_column": "3"}, follow_redirects=True)
+        self.assertIn(b'class="note-cell"><span class="grade-value">10</span></td>', page.data)
+        self.assertIn(b"Todos los estudiantes tienen una nota de Blackboard.", page.data)
+        self.assertNotIn(b'class="unmatched-row"', page.data)
+        self.assertIn(b"<summary>Ver detalle</summary>", page.data)
+        self.assertIn(b"3 de 3 estudiantes con nota de Blackboard.", page.data)
+        self.assertNotIn(b'class="match-details"', page.data)
+
+    def test_removing_one_file_keeps_the_other_and_invalidates_the_result(self):
+        self.upload()
+        self.client.post("/process", data={"source_column": "6", "target_column": "4"})
+        with self.client.session_transaction() as session:
+            docente = notes.UPLOAD_SLOTS["docente"]["folder"] / session["docente_file"]
+            blackboard = notes.UPLOAD_SLOTS["blackboard"]["folder"] / session["blackboard_file"]
+            result_name = session["result_file"]
+
+        response = self.client.post("/clear/docente", headers={"Accept": "application/json"})
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(docente.exists())
+        self.assertTrue(blackboard.exists())
+        self.assertFalse((notes.RESULT_DIR / result_name).exists())
+        self.assertFalse(notes.get_result_metadata_path(result_name).exists())
+        with self.client.session_transaction() as session:
+            self.assertNotIn("docente_file", session)
+            self.assertEqual(session["blackboard_file"], blackboard.name)
+            self.assertNotIn("grade_selection", session)
+            self.assertNotIn("result_file", session)
 
     def test_replacing_file_and_clearing_reset_selection_and_result(self):
         self.upload()

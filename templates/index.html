@@ -1,153 +1,205 @@
-{% macro icon(name, extra_class='') -%}
-  <svg class="icon {{ extra_class }}" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    {% if name == 'grid' %}<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>
-    {% elif name == 'file' %}<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>
-    {% elif name == 'upload' %}<path d="M12 16V4m-5 5 5-5 5 5M4 16v4h16v-4"/>
-    {% elif name == 'arrow' %}<path d="M4 12h16m-6-6 6 6-6 6"/>
-    {% elif name == 'check' %}<path d="m5 12 4 4L19 6"/>
-    {% elif name == 'download' %}<path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/>
-    {% elif name == 'copy' %}<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>
-    {% elif name == 'info' %}<circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-9h.01"/>
-    {% elif name == 'trash' %}<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v6m4-6v6"/>
-    {% elif name == 'shield' %}<path d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7Z"/><path d="m8 12 3 3 5-5"/>
-    {% elif name == 'sliders' %}<path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>
-    {% elif name == 'list' %}<path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/>
-    {% elif name == 'clock' %}<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
-    {% elif name == 'cap' %}<path d="m2 9 10-5 10 5-10 5ZM6 11v6c4 3 8 3 12 0v-6M22 9v7"/>
-    {% elif name == 'help' %}<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1 .7-1.5 1-1.5 2m0 4h.01"/>
-    {% elif name == 'spark' %}<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/>
-    {% elif name == 'chevron' %}<path d="m9 5 7 7-7 7"/>
-    {% elif name == 'users' %}<circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 4v2"/>
+{% macro icon(name) -%}
+  <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    {% if name == 'document' %}
+      <path d="M13 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10Z"/><path d="M13 3v7h7m-12 5 2.5 2.5L16 13"/>
+    {% elif name == 'upload' %}
+      <path d="M12 16V4m-4 4 4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/>
+    {% elif name == 'trash' %}
+      <path d="M4 7h16m-10 4v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"/>
+    {% elif name == 'copy' %}
+      <rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>
+    {% elif name == 'arrow' %}
+      <path d="M4 12h15m-6-6 6 6-6 6"/>
+    {% elif name == 'alert' %}
+      <circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/>
+    {% elif name == 'check' %}
+      <circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/>
     {% endif %}
   </svg>
+{%- endmacro %}
+{% macro student_name(row) -%}
+  {{ row.get(state.result_name_column) or row.get(state.result_id_column) or 'Sin nombre' }}
 {%- endmacro %}
 <!doctype html>
 <html lang="es">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#111217">
-    <meta name="color-scheme" content="dark">
-    <title>Preparar notas · Notas USS</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="color-scheme" content="light">
+    <title>Cargar notas USS</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Ir al contenido</a>
-    <div class="dashboard">
-      <aside class="sidebar" aria-label="Barra lateral">
-        <a class="brand" href="{{ url_for('index') }}" aria-label="Notas USS, inicio">
-          <span class="brand-mark">{{ icon('list') }}<span class="brand-dot"></span></span>
-          <span><strong>Notas<span class="brand-accent">USS</span></strong><small>Gestión académica</small></span>
-        </a>
-        <p class="nav-label">ESPACIO DE TRABAJO</p>
-        <nav class="navigation" aria-label="Navegación principal">
-          <a class="nav-item is-active" href="#main-content" aria-current="page">{{ icon('grid') }}<span>Preparar notas</span><span class="nav-active-dot"></span></a>
-          <a class="nav-item" href="#upload-files">{{ icon('file') }}<span>Archivos de origen</span></a>
-          <a class="nav-item" href="#result-section">{{ icon('list') }}<span>Resultados</span>{% if state.ready %}<span class="nav-count">1</span>{% endif %}</a>
-        </nav>
-        <div class="sidebar-bottom">
-          <a class="nav-item help-link" href="#workflow-help">{{ icon('help') }}<span>Cómo funciona</span>{{ icon('chevron') }}</a>
-          <div class="sidebar-profile"><span class="profile-icon">{{ icon('cap') }}</span><div><strong>Portal docente</strong><small>Universidad San Sebastián</small></div></div>
+    <main>
+      <header class="page-header">
+        <span class="app-icon">{{ icon('document') }}</span>
+        <h1>Cargar notas USS</h1>
+      </header>
+
+      {% for category, message in get_flashed_messages(with_categories=true) %}
+        {% if message != state.column_error %}
+          <p class="{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ message }}</p>
+        {% endif %}
+      {% endfor %}
+
+      <form id="process-form" action="{{ url_for('process_files') }}" method="post" enctype="multipart/form-data" aria-labelledby="files-heading">
+        <div class="section-heading">
+          <h2 id="files-heading">Archivos del curso</h2>
+          <p class="hint" id="upload-hint">Excel o CSV · Hasta 16 MiB en total</p>
         </div>
-      </aside>
-
-      <div class="workspace">
-        <header class="topbar">
-          <div class="breadcrumb"><span>Espacio de trabajo</span>{{ icon('chevron') }}<strong>Preparar notas</strong></div>
-          <span class="local-badge"><span class="status-dot"></span>Sesión local</span>
-        </header>
-
-        <main class="page-shell" id="main-content">
-          <header class="hero">
-            <div><p class="eyebrow">GESTIÓN DE CALIFICACIONES</p><h1>Preparar notas<span class="heading-dot">.</span></h1><p class="hero-copy">De Blackboard a MiPortal, en unos pocos pasos.</p></div>
-            <span class="integration-pill">{{ icon('cap') }}<span>MiPortal <span class="integration-plus">+</span> Blackboard</span></span>
-          </header>
-
-          <ol class="workflow" aria-label="Progreso de preparación">
-            <li class="workflow-step {{ 'is-complete' if state.has_uploads else 'is-current' }}" data-workflow-step="1" {{ 'aria-current=step' if not state.has_uploads else '' }}><span class="workflow-number">{% if state.has_uploads %}{{ icon('check') }}{% else %}01{% endif %}</span><span><strong>Cargar archivos</strong><small>MiPortal y Blackboard</small></span></li>
-            <li class="workflow-step {{ 'is-complete' if state.ready else 'is-current' if state.has_uploads else '' }}" data-workflow-step="2" {{ 'aria-current=step' if state.has_uploads and not state.ready else '' }}><span class="workflow-number">{% if state.ready %}{{ icon('check') }}{% else %}02{% endif %}</span><span><strong>Elegir evaluación</strong><small>Conecta origen y destino</small></span></li>
-            <li class="workflow-step {{ 'is-current' if state.ready else '' }}" data-workflow-step="3" {{ 'aria-current=step' if state.ready else '' }}><span class="workflow-number">03</span><span><strong>Revisar y exportar</strong><small>Tus notas, listas para usar</small></span></li>
-          </ol>
-
-          {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}<section class="messages" aria-label="Notificaciones">{% for category, message in messages %}<article class="message {{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ icon('info' if category == 'error' else 'check') }}<span>{{ message }}</span></article>{% endfor %}</section>{% endif %}
-          {% endwith %}
-
-          <div class="workbench">
-            <form id="process-form" action="{{ url_for('process_files') }}" method="post" enctype="multipart/form-data" data-has-docente="{{ 'true' if state.docente_name else 'false' }}" data-has-blackboard="{{ 'true' if state.blackboard_name else 'false' }}" data-ready="{{ 'true' if state.ready else 'false' }}">
-              <section class="section-panel upload-panel" id="upload-files" aria-labelledby="upload-heading">
-                <header class="section-header"><div class="section-heading"><span class="section-icon">{{ icon('upload') }}</span><div><h2 id="upload-heading">Archivos de origen</h2><p>Selecciona los archivos del mismo curso.</p></div></div><span class="subtle-tag">PASO 01</span></header>
-                <div class="upload-grid">
-                  {% for slot, title, description, short_name in [('docente', 'Sistema Notas Docente', 'El listado de estudiantes de MiPortal.', 'MiPortal USS'), ('blackboard', 'Notas de Blackboard', 'La exportación de calificaciones / GC.', 'Blackboard')] %}
-                    {% set filename = state.docente_name if slot == 'docente' else state.blackboard_name %}
-                    <article class="upload-card {{ 'has-file' if filename else '' }}" data-file-slot="{{ slot }}">
-                      <div class="upload-card-top"><span class="source-icon {{ 'source-purple' if slot == 'docente' else 'source-blue' }}">{{ icon('cap' if slot == 'docente' else 'grid') }}</span><span class="source-tag">{{ short_name }}</span></div>
-                      <h3>{{ title }}</h3><p class="upload-description">{{ description }}</p>
-                      <div class="upload-control">
-                        <input class="upload-input" id="{{ slot }}-file" name="{{ slot }}_file" type="file" accept=".xls,.xlsx,.csv" data-has-existing="{{ 'true' if filename else 'false' }}" data-existing-name="{{ filename or '' }}" aria-describedby="{{ slot }}-hint {{ slot }}-error" {{ 'required' if not filename else '' }}>
-                        <label class="file-label" for="{{ slot }}-file" data-default-label="{{ 'Cambiar archivo' if filename else 'Seleccionar archivo' }}"><span class="upload-icon">{{ icon('upload') }}</span><span class="file-label-title" data-file-label>{{ 'Cambiar archivo' if filename else 'Seleccionar archivo' }}</span><span class="dropzone-caption">o arrástralo aquí</span><span class="file-hint" id="{{ slot }}-hint">XLS · XLSX · CSV</span></label>
-                      </div>
-                      <p class="upload-error" id="{{ slot }}-error" aria-live="polite" hidden></p>
-                      <div class="loaded-file-bar" {{ '' if filename else 'hidden' }}><span class="loaded-file-icon">{{ icon('check') }}</span><span class="loaded-file-name" data-loaded-name>{{ filename or '' }}</span>{% if filename %}<button class="text-button danger-text" type="submit" formaction="{{ url_for('clear_slot', slot_name=slot) }}" formmethod="post" formnovalidate aria-label="Borrar archivo de {{ short_name }}" title="Borrar archivo">{{ icon('trash') }}</button>{% endif %}</div>
-                    </article>
-                  {% endfor %}
+        <div class="fields">
+          {% for slot, label, filename in [
+            ('docente', 'Listado de MiPortal', state.docente_name),
+            ('blackboard', 'Notas de Blackboard', state.blackboard_name)
+          ] %}
+            <div class="field">
+              <label class="field-label" id="{{ slot }}-label" for="{{ slot }}-file">{{ label }}</label>
+              <div class="file-row">
+                <div class="upload-control">
+                  <input class="upload-input" id="{{ slot }}-file" name="{{ slot }}_file" type="file"
+                         accept=".xls,.xlsx,.csv" data-existing-name="{{ filename or '' }}"
+                         aria-labelledby="{{ slot }}-label" aria-describedby="upload-hint {{ slot }}-name {{ slot }}-error"
+                         {{ 'required' if not filename else '' }}>
+                  <label class="file-label" for="{{ slot }}-file" title="{{ 'Cambiar archivo' if filename else 'Seleccionar archivo' }}">
+                    <span class="file-icon">{{ icon('upload') }}</span>
+                    <span class="file-prompt" id="{{ slot }}-prompt" {{ 'hidden' if filename else '' }}>Seleccionar archivo</span>
+                    <span class="file-name" id="{{ slot }}-name" {{ 'hidden' if not filename else '' }}>{{ filename or '' }}</span>
+                  </label>
                 </div>
-                <p class="upload-footnote">{{ icon('info') }}<span>Excel o CSV · Máximo 16 MiB por carga</span></p>
-              </section>
+                <button class="icon-button remove-file" type="submit" form="clear-{{ slot }}" id="{{ slot }}-remove"
+                        aria-label="Quitar archivo de {{ 'MiPortal' if slot == 'docente' else 'Blackboard' }}"
+                        data-tooltip="Quitar archivo" {{ 'hidden' if not filename else '' }}>{{ icon('trash') }}</button>
+              </div>
+              <p class="error field-error" id="{{ slot }}-error" role="alert" hidden></p>
+            </div>
+          {% endfor %}
+        </div>
 
-              <section class="section-panel selection-panel {{ 'is-awaiting' if not state.has_uploads else '' }}" id="grade-selection" aria-labelledby="selection-heading">
-                <header class="section-header"><div class="section-heading"><span class="section-icon">{{ icon('sliders') }}</span><div><h2 id="selection-heading">Elegir evaluación</h2><p>Indica qué nota quieres traspasar.</p></div></div><span class="subtle-tag">PASO 02</span></header>
-                {% if state.has_uploads %}
-                  {% if state.column_error %}<p class="message error" role="alert">{{ icon('info') }}<span>{{ state.column_error }}</span></p>
-                  {% else %}
-                    <div class="grade-grid">
-                      <div><label for="target-column">Evaluación de destino <span>MiPortal</span></label><select id="target-column" name="target_column" required><option value="">Selecciona una evaluación</option>{% for option in state.target_options %}<option value="{{ option.value }}" {{ 'selected' if state.grade_selection.get('target') == option.value else '' }}>{{ option.label }}</option>{% endfor %}</select></div>
-                      <span class="grade-connector">{{ icon('arrow') }}</span>
-                      <div><label for="source-column">Nota de origen <span>Blackboard</span></label><select id="source-column" name="source_column" required><option value="">Selecciona una columna de nota</option>{% for option in state.source_options %}<option value="{{ option.value }}" {{ 'selected' if state.grade_selection.get('source') == option.value else '' }}>{{ option.label }}</option>{% endfor %}</select></div>
-                    </div>
-                    <p class="selection-note">{{ icon('shield') }}<span>Solo se reemplaza la evaluación elegida. Las demás columnas conservan sus datos.</span></p>
-                  {% endif %}
-                {% else %}<div class="awaiting-state"><span class="awaiting-icon">{{ icon('sliders') }}</span><div><strong>Primero, carga tus archivos</strong><p>Las evaluaciones disponibles aparecerán aquí.</p></div><span class="awaiting-lock">{{ icon('clock') }}</span></div>{% endif %}
-              </section>
-
-              <section class="status-banner {{ 'is-ready' if state.ready else 'is-pending' }}" aria-label="Acciones de preparación">
-                <div class="status-copy"><span class="status-indicator">{{ icon('check' if state.ready else 'info') }}</span><p id="process-status" aria-live="polite">{% if state.ready %}Archivo generado. Revisa y descarga tus notas.{% elif state.has_uploads %}Elige origen y destino para generar el archivo.{% else %}Selecciona ambos archivos para continuar.{% endif %}</p></div>
-                <div class="banner-actions"><button class="download-button process-button {{ '' if state.has_uploads else 'is-disabled' }}" id="process-button" type="submit" {{ '' if state.has_uploads else 'disabled' }}>{{ 'Procesar y generar archivo' if state.has_uploads else 'Cargar columnas' }}</button>{% if state.has_any_files %}<button class="text-button clear-button" type="submit" formaction="{{ url_for('clear_all') }}" formmethod="post" formnovalidate>{{ icon('trash') }}<span>Borrar todo</span></button>{% endif %}</div>
-              </section>
-            </form>
-
-            <aside class="context-column" aria-label="Resumen y ayuda">
-              <section class="section-panel summary-panel"><header class="summary-header"><h2>Tu espacio de trabajo</h2><span class="summary-counter" id="file-counter">{{ (1 if state.docente_name else 0) + (1 if state.blackboard_name else 0) }}/2</span></header><p class="summary-intro">Todo listo, en un solo lugar.</p>
-                <div class="file-summary-grid">
-                  {% for slot, label, filename in [('docente', 'Listado docente', state.docente_name), ('blackboard', 'Archivo Blackboard', state.blackboard_name), ('result', 'Archivo final', state.result_name)] %}
-                    <article class="file-summary {{ 'is-loaded' if filename else '' }}" data-summary-slot="{{ slot }}"><span class="summary-file-icon">{{ icon('download' if slot == 'result' else 'file') }}</span><div><p class="summary-title">{{ label }}</p><strong data-summary-name title="{{ filename or '' }}">{{ filename or ('Pendiente de generar' if slot == 'result' else 'Sin archivo seleccionado') }}</strong><span class="file-state" data-file-state>{{ 'Generado' if filename and slot == 'result' else 'Cargado' if filename else 'Pendiente' }}</span></div><span class="summary-check">{{ icon('check') }}</span></article>
+        {% if state.column_error %}
+          <p class="error" id="column-error" role="alert">{{ state.column_error }}</p>
+        {% elif state.has_uploads %}
+          <div class="fields" id="grade-selection">
+            {% for id, label, options in [
+              ('target', 'Evaluación en MiPortal', state.target_options),
+              ('source', 'Evaluación en Blackboard', state.source_options)
+            ] %}
+              <div class="field">
+                <label class="field-label" for="{{ id }}-column">{{ label }}</label>
+                <select id="{{ id }}-column" name="{{ id }}_column" required>
+                  <option value="">Selecciona una evaluación</option>
+                  {% for option in options %}
+                    <option value="{{ option.value }}" {{ 'selected' if state.grade_selection.get(id) == option.value else '' }}>{{ option.label }}</option>
                   {% endfor %}
-                </div>
-                <div class="summary-bottom">{{ icon('shield') }}<p>Los archivos se procesan en el equipo que ejecuta la aplicación.</p></div>
-              </section>
-              <section class="tip-card" id="workflow-help"><span class="tip-icon">{{ icon('spark') }}</span><p class="eyebrow">UN TRASPASO MÁS SIMPLE</p><h2>Mismo listado.<br>Notas actualizadas.</h2><p>Se conserva el orden de tus estudiantes y se buscan coincidencias por RUT o nombre.</p><details class="workflow-help"><summary>Cómo funciona {{ icon('chevron') }}</summary><ol><li>Carga el listado docente y la exportación de Blackboard.</li><li>Elige la evaluación de destino y la nota de origen.</li><li>Genera el archivo, revisa el resultado y descarga o copia las notas.</li></ol></details></section>
-              <div class="rule-note">{{ icon('info') }}<p>Los estudiantes sin coincidencia reciben <strong>10 por defecto</strong>. Revísalos antes de traspasar las notas.</p></div>
-            </aside>
+                </select>
+              </div>
+            {% endfor %}
           </div>
+        {% endif %}
 
-          <section class="results-section" id="result-section" aria-labelledby="results-heading">
-            <header class="results-heading"><div><p class="eyebrow">PASO 03</p><h2 id="results-heading">Revisar y exportar</h2></div><span class="subtle-tag">{{ 'RESULTADO DISPONIBLE' if state.ready else 'POR COMPLETAR' }}</span></header>
-            <div class="result-empty section-panel" id="result-empty" {{ 'hidden' if state.ready else '' }}><span class="empty-result-icon">{{ icon('list') }}</span><div><h3>Tus notas aparecerán aquí</h3><p>Completa los pasos anteriores para revisar el resultado y exportarlo a Excel.</p></div><span class="empty-result-format">.xlsx</span></div>
+        <p class="error" id="process-error" role="alert" hidden></p>
+        <button class="primary-button" id="process-button" type="submit">
+          <span id="process-label">{{ 'Generar listado' if state.has_uploads and not state.column_error else 'Cargar archivos' }}</span>
+          {{ icon('arrow') }}
+        </button>
+
+        {% set result_summary = state.result_summary %}
+        {% set count = result_summary.unmatched_count %}
+        <div class="match-feedback {{ 'has-unmatched' if count else 'has-matches' if result_summary.student_rows else '' }}"
+             id="match-feedback" data-ready="{{ 'true' if state.ready else 'false' }}">
+          {% if state.ready %}
+            {{ icon('alert' if count or not result_summary.student_rows else 'check') }}
+          {% endif %}
+          <div>
             {% if state.ready %}
-              <div id="generated-result">
-                <section class="stats-grid" aria-label="Resumen del procesamiento"><article class="stat-card"><div><p class="summary-title">Filas totales</p><strong>{{ state.result_summary.total_rows }}</strong><span>En el listado docente</span></div><span class="stat-icon">{{ icon('users') }}</span></article><article class="stat-card stat-success"><div><p class="summary-title">Con coincidencia</p><strong>{{ state.result_summary.matched_count }}</strong><span>Notas encontradas</span></div><span class="stat-icon">{{ icon('check') }}</span></article><article class="stat-card stat-warning"><div><p class="summary-title">Sin coincidencia</p><strong>{{ state.result_summary.unmatched_count }}</strong><span>Requieren revisión</span></div><span class="stat-icon">{{ icon('info') }}</span></article></section>
-                <section class="data-panel"><header class="panel-header"><div><p class="eyebrow">EVALUACIÓN DE DESTINO</p><h3>{{ state.result_grade_column }}</h3><p class="result-source">Origen: {{ state.result_source_column or 'Selección automática anterior' }}</p></div><div class="panel-actions"><button class="download-button copy-button" id="copy-notes-button" type="button">{{ icon('copy') }}Copiar notas</button><a class="download-button secondary-download" href="{{ url_for('download_result') }}">{{ icon('download') }}Descargar resultado</a><span class="copy-feedback" id="copy-feedback" aria-live="polite"></span></div></header><div class="table-wrap" tabindex="0" role="region" aria-label="Notas generadas, tabla con desplazamiento"><table class="result-table" id="result-table"><thead><tr>{% for column in state.result_columns %}<th scope="col" class="{{ 'selected-grade' if column == state.result_grade_column else '' }}">{{ column }}</th>{% endfor %}</tr></thead><tbody>{% for row in state.result_rows %}<tr class="{{ 'is-unmatched' if row.is_unmatched else 'is-summary' if row.is_summary else '' }}">{% for column in state.result_columns %}<td class="{{ 'note-cell selected-grade' if column == state.result_grade_column else '' }}">{{ row[column] }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div><p class="table-footnote">{{ icon('info') }}La evaluación seleccionada está resaltada. Puedes deslizar la tabla para ver todas las columnas.</p></section>
-                <section class="data-panel unmatched-panel"><header class="panel-header"><div><p class="eyebrow">REVISIÓN DE COINCIDENCIAS</p><h3>Estudiantes con nota 10 por defecto</h3></div><span class="panel-tag {{ 'tag-warning' if state.unmatched_rows else 'tag-success' }}">{{ state.result_summary.unmatched_count }} casos</span></header>{% if state.unmatched_rows %}<div class="table-wrap" tabindex="0" role="region" aria-label="Estudiantes sin coincidencia, tabla con desplazamiento"><table class="result-table compact-table"><thead><tr><th scope="col">N</th><th scope="col">Rut</th><th scope="col">Nombre</th><th scope="col">Detalle</th><th scope="col">Buscado</th></tr></thead><tbody>{% for row in state.unmatched_rows %}<tr><td>{{ row['N'] }}</td><td>{{ row['Rut'] }}</td><td>{{ row['Nombre'] }}</td><td>{{ row['detalle'] }}</td><td>{{ row['buscado'] }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="empty-copy">{{ icon('check') }}Todos los estudiantes encontraron una coincidencia.</p>{% endif %}</section>
+              <div class="match-summary">
+                {% if count %}
+                  <p><strong>{{ count }} {{ 'estudiante sin coincidencia' if count == 1 else 'estudiantes sin coincidencia' }}</strong></p>
+                  <p>Se asignó 10 por defecto.</p>
+                {% elif result_summary.student_rows %}
+                  <p>Todos los estudiantes tienen una nota de Blackboard.</p>
+                {% else %}
+                  <p>El listado no contiene estudiantes.</p>
+                {% endif %}
               </div>
             {% endif %}
-          </section>
-          <footer class="page-footer"><span>NotasUSS <span class="footer-divider">/</span> Menos pasos, más tiempo para enseñar.</span><span>MiPortal · Blackboard · Excel</span></footer>
-        </main>
-      </div>
-    </div>
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+            <details>
+              <summary>Ver detalle</summary>
+              <p class="match-pending">Genera un listado para ver el resultado del cruce.</p>
+              {% if state.ready %}
+                <div class="match-report">
+                  {% if result_summary.student_rows %}
+                    <p>{{ result_summary.matched_count }} de {{ result_summary.student_rows }} estudiantes con nota de Blackboard.</p>
+                  {% else %}
+                    <p>El cruce omite las filas de resumen y las que no identifican a un estudiante.</p>
+                  {% endif %}
+                  {% if count %}
+                    {% set unmatched = state.unmatched_rows or (state.result_rows | selectattr('is_unmatched') | list) %}
+                    <ul class="match-details">
+                      {% for row in unmatched %}
+                        <li>
+                          <strong>{{ student_name(row) }}</strong>
+                          <dl>
+                            {% if row.get('N') %}
+                              <dt>N.º</dt><dd>{{ row['N'] }}</dd>
+                            {% endif %}
+                            {% if row.get(state.result_id_column) %}
+                              <dt>RUT/ID</dt><dd>{{ row[state.result_id_column] }}</dd>
+                            {% endif %}
+                            <dt>Detalle</dt>
+                            <dd>{{ (row.get('detalle') or 'No se encontró coincidencia en Blackboard.') | replace('se encontro', 'se encontró') }}</dd>
+                            {% if row.get('buscado') %}
+                              <dt>Buscado</dt><dd>{{ row['buscado'] }}</dd>
+                            {% endif %}
+                          </dl>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </details>
+          </div>
+        </div>
+      </form>
+
+      {% for slot in ['docente', 'blackboard'] %}
+        <form id="clear-{{ slot }}" action="{{ url_for('clear_slot', slot_name=slot) }}" method="post" hidden></form>
+      {% endfor %}
+
+      {% if state.ready %}
+        {% set grade = state.result_grade_column %}
+        <section id="generated-result" aria-labelledby="results-heading">
+          <div class="section-heading result-heading">
+            <div>
+              <h2 id="results-heading">Listado de notas</h2>
+              <p class="hint">{{ grade }}</p>
+            </div>
+            <button class="icon-button copy-notes" id="copy-notes-button" type="button"
+                    aria-label="Copiar notas" data-tooltip="Copiar notas">{{ icon('copy') }}</button>
+          </div>
+          <p class="copy-feedback" id="copy-feedback" role="status"></p>
+          <table id="result-table" aria-labelledby="results-heading">
+            <thead>
+              <tr><th scope="col">Estudiante</th><th scope="col">Nota</th></tr>
+            </thead>
+            <tbody>
+              {% for row in state.result_rows if not row.is_summary %}
+                <tr class="{{ 'unmatched-row' if row.is_unmatched else '' }}">
+                  <th scope="row">
+                    {{ student_name(row) }}
+                    {% if row.is_unmatched %}<span class="unmatched">Nota por defecto</span>{% endif %}
+                  </th>
+                  <td class="note-cell"><span class="grade-value">{{ row.get(grade, '') }}</span></td>
+                </tr>
+              {% else %}
+                <tr><td colspan="2">El listado no contiene estudiantes.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </section>
+      {% endif %}
+    </main>
   </body>
 </html>

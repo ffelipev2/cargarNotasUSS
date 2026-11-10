@@ -8,30 +8,48 @@ function element(properties = {}) {
     disabled: false,
     value: "",
     listeners: {},
-    classList: { toggle() {} },
+    classList: { add() {}, remove() {} },
     addEventListener(event, callback) { this.listeners[event] = callback; },
     ...properties,
   };
 }
 
 async function main() {
-  const inputs = [element({ id: "docente-file", files: [], dataset: { hasExisting: "true" } }), element({ id: "blackboard-file", files: [], dataset: { hasExisting: "true" } })];
+  const fileLabel = element();
+  const dropzone = element({ querySelector: () => fileLabel });
+  const inputs = ["docente", "blackboard"].map((slot) => element({
+    id: `${slot}-file`,
+    files: [],
+    dataset: { existingName: `${slot}.csv` },
+    closest: () => dropzone,
+  }));
   const selects = [element(), element()];
   const button = element();
   const copyButton = element();
+  const docenteRemoveForm = element({ action: "/clear/docente" });
+  const blackboardRemoveForm = element({ action: "/clear/blackboard" });
   const result = element();
-  const emptyResult = element({ hidden: true });
-  const download = element();
+  const matchFeedback = element({ dataset: { ready: "true" } });
+  const gradeSelection = element();
   const feedback = element();
-  const status = element();
   const elements = {
+    "#process-form": element({ hasAttribute: () => false }),
     "#process-button": button,
+    "#process-label": element(),
     "#copy-notes-button": copyButton,
     "#copy-feedback": feedback,
     "#generated-result": result,
-    "#result-empty": emptyResult,
-    ".secondary-download": download,
-    "#process-status": status,
+    "#match-feedback": matchFeedback,
+    "#grade-selection": gradeSelection,
+    "#process-error": element(),
+    "#docente-name": element(),
+    "#blackboard-name": element(),
+    "#docente-prompt": element(),
+    "#blackboard-prompt": element(),
+    "#docente-error": element(),
+    "#blackboard-error": element(),
+    "#docente-remove": element({ form: docenteRemoveForm }),
+    "#blackboard-remove": element({ form: blackboardRemoveForm }),
   };
   let copied;
   const context = {
@@ -43,7 +61,7 @@ async function main() {
         "#result-table tbody .note-cell": [{ textContent: "55" }, { textContent: "64" }, { textContent: "10" }, { textContent: "" }],
       })[selector],
     },
-    window: { isSecureContext: true },
+    window: element({ isSecureContext: true }),
     navigator: { clipboard: { writeText: async (value) => { copied = value; } } },
   };
   vm.runInNewContext(fs.readFileSync("static/app.js", "utf8"), context);
@@ -55,18 +73,20 @@ async function main() {
   selects[1].listeners.change();
   assert.equal(button.disabled, false);
   assert.equal(result.hidden, true, "Changing evaluation hides stale results");
-  assert.equal(download.hidden, true, "Changing evaluation hides stale download");
-  assert.equal(emptyResult.hidden, false, "Changing evaluation shows the pending result state");
+  assert.equal(matchFeedback.dataset.ready, "false", "Changing evaluation returns match details to the pending state");
 
   inputs[0].files = [{ name: "replacement.xlsx" }];
   inputs[0].listeners.change();
-  assert.equal(button.textContent, "Cargar columnas");
+  assert.equal(elements["#process-label"].textContent, "Cargar archivos");
   assert.equal(button.disabled, false);
+  assert.equal(gradeSelection.hidden, true);
+  assert.equal(elements["#docente-name"].textContent, "replacement.xlsx");
   assert.ok(selects.every((select) => select.disabled), "Old selections do not block replacing files");
   inputs[0].files = [];
   inputs[0].listeners.change();
+  assert.equal(gradeSelection.hidden, false);
   assert.ok(selects.every((select) => !select.disabled));
-  assert.equal(button.textContent, "Procesar y generar archivo");
+  assert.equal(elements["#process-label"].textContent, "Generar listado");
 
   await copyButton.listeners.click();
   assert.equal(copied, "55\n64\n10", "Copy uses selected grade cells in roster order and omits summary blanks");
